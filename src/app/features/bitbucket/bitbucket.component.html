@@ -1,0 +1,65 @@
+<div class="max-w-5xl mx-auto space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900">Bitbucket — Repositórios</h1>
+      <p class="text-slate-500 text-sm mt-1">Repositórios do seu workspace.</p>
+    </div>
+    <button (click)="load()" class="px-4 py-2 bg-[#164e3d] text-white text-sm font-semibold rounded-xl hover:bg-[#0d382c] transition-all">
+      Atualizar
+    </button>
+  </div>
+
+  @if (error()) {
+    <div class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-sm">
+      <strong>Atenção:</strong> {{ error() }}
+      <a routerLink="/settings" class="ml-2 underline font-semibold">Configurar Bitbucket →</a>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="flex items-center justify-center py-16">
+      <svg class="animate-spin h-8 w-8 text-verde-800" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+      </svg>
+    </div>
+  }
+
+  @if (!loading() && !error()) {
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      @for (repo of repos(); track repo.slug) {
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 hover:shadow-md transition-all">
+          <div class="flex items-start justify-between mb-3">
+            <div class="w-10 h-10 rounded-xl bg-[#0d382c]/10 flex items-center justify-center">
+              <svg class="w-5 h-5 text-[#164e3d]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/>
+              </svg>
+            </div>
+            @if (repo.language) {
+              <span class="px-2 py-0.5 text-xs font-medium rounded bg-slate-100 text-slate-600">
+                {{ repo.language }}
+              </span>
+            }
+          </div>
+          <h3 class="text-sm font-bold text-slate-800 mb-1">{{ repo.name }}</h3>
+          @if (repo.description) {
+            <p class="text-xs text-slate-500 line-clamp-2 mb-3">{{ repo.description }}</p>
+          }
+          <div class="flex items-center justify-between">
+            <span class="text-xs text-slate-400">Atualizado: {{ formatDate(repo.updated_on) }}</span>
+            <a [href]="repo.links.html.href" target="_blank"
+              class="text-xs font-semibold text-[#164e3d] hover:text-[#0d382c] hover:underline">
+              Abrir →
+            </a>
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (repos().length === 0) {
+      <div class="text-center py-16 text-slate-400">
+        <p class="text-lg font-semibold">Nenhum repositório encontrado</p>
+      </div>
+    }
+  }
+</div>

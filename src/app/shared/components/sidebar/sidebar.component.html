@@ -1,0 +1,45 @@
+<aside class="w-64 bg-verde-900 text-white flex flex-col h-full flex-shrink-0">
+  <!-- Logo -->
+  <div class="h-16 px-5 flex items-center gap-3 border-b border-verde-800/60">
+    <div class="w-9 h-9 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center">
+      <svg class="w-5 h-5 text-emerald-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 19V11M12 11C12 7.134 8.866 4 5 4C5 7.866 8.134 11 12 11ZM12 11C12 7.134 15.134 4 19 4C19 7.866 15.866 11 12 11Z" />
+      </svg>
+    </div>
+    <div>
+      <span class="text-base font-bold tracking-tight text-white leading-none block">Verde</span>
+      <span class="text-[10px] uppercase font-semibold text-emerald-400 tracking-wider">Acelera Fluxo</span>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="flex-1 px-3 py-4 space-y-1">
+    @for (item of navItems; track item.route) {
+      <a [routerLink]="item.route" routerLinkActive="bg-verde-800 text-white"
+         class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-emerald-200 hover:bg-verde-800 hover:text-white transition-all">
+        <span class="w-5 h-5" [innerHTML]="item.icon"></span>
+        {{ item.label }}
+      </a>
+    }
+  </nav>
+
+  <!-- User -->
+  <div class="p-4 border-t border-verde-800/60">
+    <div class="flex items-center gap-3 mb-3">
+      <div class="w-9 h-9 rounded-full bg-emerald-500/30 border border-emerald-400/30 flex items-center justify-center text-emerald-200 font-bold text-sm">
+        {{ getUserInitials() }}
+      </div>
+      <div class="min-w-0">
+        <p class="text-sm font-semibold text-white truncate">{{ getUserName() }}</p>
+        <p class="text-xs text-emerald-300/70 truncate">{{ getUserEmail() }}</p>
+      </div>
+    </div>
+    <button (click)="logout()"
+      class="w-full text-left px-3 py-2 rounded-lg text-xs font-medium text-emerald-300 hover:bg-verde-800 hover:text-white transition-all flex items-center gap-2">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+      </svg>
+      Sair
+    </button>
+  </div>
+</aside>

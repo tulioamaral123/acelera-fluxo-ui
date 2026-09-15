@@ -1,0 +1,169 @@
+<div class="max-w-5xl mx-auto space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h1 class="text-2xl font-bold text-slate-900">Jira — Tickets</h1>
+      <p class="text-slate-500 text-sm mt-1">Tickets atribuídos a você nos últimos 15 dias.</p>
+    </div>
+    <button (click)="load()" class="px-4 py-2 bg-[#164e3d] text-white text-sm font-semibold rounded-xl hover:bg-[#0d382c] transition-all">
+      Atualizar
+    </button>
+  </div>
+
+  @if (error()) {
+    <div class="p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-sm">
+      <strong>Atenção:</strong> {{ error() }}
+      <a routerLink="/settings" class="ml-2 underline font-semibold">Configurar Jira →</a>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="flex items-center justify-center py-16">
+      <svg class="animate-spin h-8 w-8 text-[#164e3d]" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+      </svg>
+    </div>
+  }
+
+  @if (!loading() && !error() && issues().length > 0) {
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div class="p-4 border-b border-slate-100">
+        <span class="text-sm font-semibold text-slate-700">{{ issues().length }} tickets encontrados</span>
+      </div>
+      <div class="divide-y divide-slate-100">
+        @for (issue of issues(); track issue.id) {
+          <div class="p-4 transition-all" [class.bg-slate-50]="activeWorklog() === issue.key">
+
+            <!-- Ticket row -->
+            <div class="flex items-start gap-3">
+              <span class="px-2 py-0.5 text-xs font-bold rounded bg-blue-100 text-blue-700 mt-0.5 flex-shrink-0">
+                {{ issue.key }}
+              </span>
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold text-slate-800">{{ issue.fields.summary }}</p>
+                <div class="flex items-center flex-wrap gap-2 mt-1.5">
+                  <span [class]="getStatusClass(issue.fields.status.name)"
+                    class="px-2 py-0.5 text-xs font-medium rounded-full">
+                    {{ issue.fields.status.name }}
+                  </span>
+
+                  <!-- Time spent badge -->
+                  @if (issue.fields.timetracking?.timeSpent) {
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-100 text-violet-700 text-xs font-semibold">
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                      </svg>
+                      {{ issue.fields.timetracking!.timeSpent }} registrado
+                    </span>
+                  }
+
+                  <!-- Remaining estimate -->
+                  @if (issue.fields.timetracking?.remainingEstimate) {
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 text-xs">
+                      {{ issue.fields.timetracking!.remainingEstimate }} restante
+                    </span>
+                  }
+
+                  <span class="text-xs text-slate-400">Atualizado: {{ formatDate(issue.fields.updated) }}</span>
+                </div>
+
+                <!-- Worklog entries (últimos 3) -->
+                @if (issue.fields.worklog?.worklogs?.length) {
+                  <div class="mt-2 space-y-1">
+                    @for (log of getRecentLogs(issue); track log.started) {
+                      <div class="flex items-center gap-2 text-xs text-slate-500">
+                        <span class="w-1.5 h-1.5 rounded-full bg-violet-400 flex-shrink-0"></span>
+                        <span class="font-medium text-slate-600">{{ log.timeSpent }}</span>
+                        <span>por {{ log.author.displayName }}</span>
+                        <span class="text-slate-400">· {{ formatDate(log.started) }}</span>
+                      </div>
+                    }
+                    @if (issue.fields.worklog!.total > 3) {
+                      <p class="text-xs text-slate-400 pl-3.5">+{{ issue.fields.worklog!.total - 3 }} registros anteriores</p>
+                    }
+                  </div>
+                }
+              </div>
+
+              <!-- Log time button -->
+              <button (click)="toggleWorklog(issue.key)"
+                class="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all"
+                [class]="activeWorklog() === issue.key
+                  ? 'bg-slate-100 border-slate-300 text-slate-600'
+                  : 'bg-[#164e3d]/5 border-[#164e3d]/20 text-[#164e3d] hover:bg-[#164e3d]/10'">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                {{ activeWorklog() === issue.key ? 'Cancelar' : 'Apontar horas' }}
+              </button>
+            </div>
+
+            <!-- Worklog inline form -->
+            @if (activeWorklog() === issue.key) {
+              <div class="mt-4 ml-0 sm:ml-10 p-4 bg-white rounded-xl border border-slate-200 shadow-sm space-y-3">
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-500">Apontar horas — {{ issue.key }}</p>
+
+                @if (worklogSuccess()) {
+                  <div class="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-medium">
+                    Horas registradas com sucesso!
+                  </div>
+                }
+                @if (worklogError()) {
+                  <div class="p-2.5 rounded-lg bg-red-50 border border-red-200 text-red-700 text-xs">
+                    {{ worklogError() }}
+                  </div>
+                }
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">
+                      Tempo gasto <span class="text-slate-400 font-normal">(ex: 2h, 1h 30m, 45m)</span>
+                    </label>
+                    <input
+                      [(ngModel)]="worklogForms[issue.key].timeSpent"
+                      type="text"
+                      placeholder="1h 30m"
+                      class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-[#164e3d] focus:ring-1 focus:ring-[#164e3d]/20 transition-all" />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Comentário <span class="text-slate-400 font-normal">(opcional)</span></label>
+                    <input
+                      [(ngModel)]="worklogForms[issue.key].comment"
+                      type="text"
+                      placeholder="Descrição do trabalho"
+                      class="w-full px-3 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg focus:outline-none focus:border-[#164e3d] focus:ring-1 focus:ring-[#164e3d]/20 transition-all" />
+                  </div>
+                </div>
+
+                <div class="flex justify-end gap-2 pt-1">
+                  <button (click)="toggleWorklog(issue.key)"
+                    class="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 rounded-lg hover:bg-slate-100 transition-all">
+                    Cancelar
+                  </button>
+                  <button (click)="submitWorklog(issue.key)" [disabled]="worklogLoading()"
+                    class="px-4 py-2 text-xs font-semibold bg-[#164e3d] hover:bg-[#0d382c] text-white rounded-lg transition-all disabled:opacity-60 flex items-center gap-1.5">
+                    @if (worklogLoading()) {
+                      <svg class="animate-spin h-3.5 w-3.5" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                      </svg>
+                    }
+                    Registrar
+                  </button>
+                </div>
+              </div>
+            }
+
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+  @if (!loading() && !error() && issues().length === 0) {
+    <div class="text-center py-16 text-slate-400">
+      <p class="text-lg font-semibold">Nenhum ticket encontrado</p>
+      <p class="text-sm mt-1">Nenhum ticket atribuído a você nos últimos 15 dias.</p>
+    </div>
+  }
+</div>

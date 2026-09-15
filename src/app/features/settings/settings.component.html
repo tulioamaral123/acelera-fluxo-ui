@@ -1,0 +1,122 @@
+<div class="max-w-2xl mx-auto space-y-6">
+  <div>
+    <h1 class="text-2xl font-bold text-slate-900">Configurações</h1>
+    <p class="text-slate-500 text-sm mt-1">Configure suas integrações com Jira, Bitbucket e Google Calendar.</p>
+  </div>
+
+  @if (success()) {
+    <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-sm">
+      Configurações salvas com sucesso!
+    </div>
+  }
+  @if (error()) {
+    <div class="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">{{ error() }}</div>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="save()" class="space-y-5">
+
+    <!-- Jira Section -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+      <h2 class="text-base font-semibold text-slate-800 flex items-center gap-2">
+        <span class="w-7 h-7 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 text-xs font-bold">J</span>
+        Jira
+      </h2>
+
+      <div>
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Domínio Jira</label>
+        <input formControlName="jiraDomain" type="text" placeholder="ex: empresa.atlassian.net"
+          class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:outline-none focus:border-verde-800 focus:ring-2 focus:ring-verde-800/20 transition-all" />
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">E-mail Jira</label>
+        <input formControlName="jiraEmail" type="email" placeholder="seuemail@empresa.com"
+          class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:outline-none focus:border-verde-800 focus:ring-2 focus:ring-verde-800/20 transition-all" />
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Token Jira API</label>
+        <input formControlName="jiraToken" type="password" placeholder="••••••••••••••••••••"
+          class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:outline-none focus:border-verde-800 focus:ring-2 focus:ring-verde-800/20 transition-all" />
+        <p class="text-xs text-slate-400 mt-1">Gere em: id.atlassian.com/manage-profile/security/api-tokens</p>
+      </div>
+    </div>
+
+    <!-- Bitbucket Section -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+      <h2 class="text-base font-semibold text-slate-800 flex items-center gap-2">
+        <span class="w-7 h-7 rounded-lg bg-blue-900/10 flex items-center justify-center text-blue-800 text-xs font-bold">B</span>
+        Bitbucket
+      </h2>
+
+      <div>
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Workspace Bitbucket</label>
+        <input formControlName="bitbucketWorkspace" type="text" placeholder="ex: minha-empresa"
+          class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:outline-none focus:border-verde-800 focus:ring-2 focus:ring-verde-800/20 transition-all" />
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Token Bitbucket</label>
+        <input formControlName="bitbucketToken" type="password" placeholder="••••••••••••••••••••"
+          class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:outline-none focus:border-verde-800 focus:ring-2 focus:ring-verde-800/20 transition-all" />
+      </div>
+    </div>
+
+    <!-- Google Calendar Section -->
+    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+      <h2 class="text-base font-semibold text-slate-800 flex items-center gap-2">
+        <span class="w-7 h-7 rounded-lg bg-red-50 flex items-center justify-center">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+            <rect x="3" y="4" width="18" height="17" rx="2" stroke="#EA4335" stroke-width="1.8"/>
+            <path d="M3 9h18" stroke="#EA4335" stroke-width="1.8"/>
+            <path d="M8 2v4M16 2v4" stroke="#EA4335" stroke-width="1.8" stroke-linecap="round"/>
+            <circle cx="12" cy="15" r="2" fill="#4285F4"/>
+          </svg>
+        </span>
+        Google Calendar
+      </h2>
+
+      <div class="p-3 rounded-lg bg-blue-50 border border-blue-100 text-blue-700 text-xs leading-relaxed">
+        <strong>Como obter as credenciais:</strong>
+        acesse <span class="font-mono">console.cloud.google.com</span> → APIs &amp; Services → Credentials → OAuth 2.0 Client ID (tipo: Web Application). O Refresh Token é gerado após o fluxo de autorização OAuth.
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Client ID</label>
+        <input formControlName="googleClientId" type="text" placeholder="xxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.apps.googleusercontent.com"
+          class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:outline-none focus:border-verde-800 focus:ring-2 focus:ring-verde-800/20 transition-all" />
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Client Secret</label>
+        <input formControlName="googleClientSecret" type="password" placeholder="••••••••••••••••••••"
+          class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:outline-none focus:border-verde-800 focus:ring-2 focus:ring-verde-800/20 transition-all" />
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Calendar ID</label>
+        <input formControlName="googleCalendarId" type="text" placeholder="primary  ou  seuemail@gmail.com"
+          class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:outline-none focus:border-verde-800 focus:ring-2 focus:ring-verde-800/20 transition-all" />
+        <p class="text-xs text-slate-400 mt-1">Use <span class="font-mono">primary</span> para o calendário principal, ou o ID completo de um calendário específico.</p>
+      </div>
+
+      <div>
+        <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Refresh Token</label>
+        <input formControlName="googleRefreshToken" type="password" placeholder="••••••••••••••••••••"
+          class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 text-sm focus:outline-none focus:border-verde-800 focus:ring-2 focus:ring-verde-800/20 transition-all" />
+        <p class="text-xs text-slate-400 mt-1">Gerado via OAuth 2.0 Playground: <span class="font-mono">developers.google.com/oauthplayground</span></p>
+      </div>
+    </div>
+
+    <button type="submit" [disabled]="loading()"
+      class="w-full py-3.5 bg-[#164e3d] hover:bg-[#0d382c] text-white font-semibold rounded-xl shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-70">
+      @if (loading()) {
+        <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+      }
+      Salvar Configurações
+    </button>
+  </form>
+</div>
